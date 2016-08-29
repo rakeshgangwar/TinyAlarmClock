@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:timeZone="GMT+0530"
-        android:format12Hour="MMM dd, yyyy HH:mm a"
+        android:format12Hour="MMM dd, yyyy"
         android:textSize="15sp"
         android:layout_below="@id/time"/>
 
