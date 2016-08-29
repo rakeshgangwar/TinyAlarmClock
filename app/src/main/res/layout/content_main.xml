@@ -12,8 +12,29 @@
     tools:context="com.rakeshgangwar.tinyalarmclock.MainActivity"
     tools:showIn="@layout/activity_main">
 
-    <TextView
+    <TextClock
+        android:id="@+id/time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!" />
+        android:layout_centerHorizontal="true"
+        android:timeZone="GMT+0530"
+        android:textSize="30sp"
+        android:padding="15dp"/>
+
+    <TextClock
+        android:id="@+id/date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:timeZone="GMT+0530"
+        android:format12Hour="MMM dd, yyyy HH:mm a"
+        android:textSize="15sp"
+        android:layout_below="@id/time"/>
+
+
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/listView"
+        android:layout_below="@id/date"/>
 </RelativeLayout>
