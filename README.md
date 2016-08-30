@@ -1,7 +1,8 @@
 # TinyAlarmClock
 
 Target SDK Version - 23, <br>
-Minimum SDK Version - 21
+Minimum SDK Version - 21, <br>
+Tested on Android Version - 5.1.1
 
 # Functionality
 - Digital Clock and Date displayed
