@@ -3,11 +3,14 @@ package com.rakeshgangwar.tinyalarmclock;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -54,8 +57,20 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String value=(String)parent.getItemAtPosition(position);
-                AlarmDatabase.deleteAlarm(value);
+                String[] splitNumber=value.split(":");
+                String modValue;
+                if(splitNumber[1].startsWith("0"))
+                    modValue=value.replace(":0"," ");
+                else
+                    modValue=value.replace(":"," ");
+
+                AlarmDatabase.deleteAlarm(modValue);
                 fillListView();
+                Intent intent=new Intent(getApplicationContext(), AlarmReceiver.class);
+                PendingIntent pendingIntent=PendingIntent.getBroadcast(getApplicationContext(), Integer.parseInt(modValue.replaceAll("\\s+","")), intent, 0);
+                AlarmManager alarmManager=(AlarmManager)getSystemService(ALARM_SERVICE);
+                alarmManager.cancel(pendingIntent);
+                Toast.makeText(getApplicationContext(), "Alarm Deleted", Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -63,18 +78,26 @@ public class MainActivity extends AppCompatActivity {
     TimePickerDialog.OnTimeSetListener t=new TimePickerDialog.OnTimeSetListener() {
         @Override
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            Toast.makeText(getApplicationContext(), ""+hourOfDay+" "+minute, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Alarm set for "+hourOfDay+":"+minute, Toast.LENGTH_LONG).show();
             AlarmDatabase.init(getApplicationContext());
             AlarmDatabase.create(""+hourOfDay+" "+minute);
             fillListView();
             AlarmManager alarmManager=(AlarmManager)getSystemService(ALARM_SERVICE);
+            Calendar now=Calendar.getInstance();
             Calendar calendar=Calendar.getInstance();
             calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
             calendar.set(Calendar.MINUTE, minute);
+            if(calendar.before(now))
+                calendar.add(Calendar.DAY_OF_MONTH, 1);
             Intent intent=new Intent(getApplicationContext(), AlarmReceiver.class);
             int _id=Integer.parseInt(""+hourOfDay+minute);
             PendingIntent pendingIntent=PendingIntent.getBroadcast(getApplicationContext(), _id, intent, 0);
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+            else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+            else
+                alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
         }
     };
 
@@ -102,8 +125,16 @@ public class MainActivity extends AppCompatActivity {
 
     public void fillListView(){
         alarms=AlarmDatabase.getAll();
+        List<String> mappedList = new ArrayList<>();
+        for(String alarm:alarms){
+            String[] splitNumber=alarm.split("\\s+");
+            if(splitNumber[1].length()==1)
+                mappedList.add(alarm.replace(" ",":0"));
+            else
+                mappedList.add(alarm.replace(" ",":"));
+        }
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_list_item_1, alarms);
+                android.R.layout.simple_list_item_1, mappedList);
         listView.setAdapter(adapter);
     }
 }
