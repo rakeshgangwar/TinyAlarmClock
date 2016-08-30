@@ -1,6 +1,9 @@
 package com.rakeshgangwar.tinyalarmclock;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -64,6 +67,14 @@ public class MainActivity extends AppCompatActivity {
             AlarmDatabase.init(getApplicationContext());
             AlarmDatabase.create(""+hourOfDay+" "+minute);
             fillListView();
+            AlarmManager alarmManager=(AlarmManager)getSystemService(ALARM_SERVICE);
+            Calendar calendar=Calendar.getInstance();
+            calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+            calendar.set(Calendar.MINUTE, minute);
+            Intent intent=new Intent(getApplicationContext(), AlarmReceiver.class);
+            int _id=Integer.parseInt(""+hourOfDay+minute);
+            PendingIntent pendingIntent=PendingIntent.getBroadcast(getApplicationContext(), _id, intent, 0);
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
         }
     };
 
