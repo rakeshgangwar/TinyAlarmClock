@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    calendar=Calendar.getInstance();
                     new TimePickerDialog(MainActivity.this,
                             t,
                             calendar.get(Calendar.HOUR_OF_DAY),
